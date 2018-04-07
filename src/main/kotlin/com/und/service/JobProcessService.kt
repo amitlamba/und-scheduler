@@ -1,21 +1,19 @@
 package com.und.service
 
 import com.und.model.JobDescriptor
-import com.und.model.RecurrenceMessage
 import com.und.util.loggerFor
 import org.quartz.JobKey
 import org.quartz.SchedulerException
 import org.slf4j.Logger
-import org.springframework.cloud.stream.annotation.StreamListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class RRuleProcessService : AbstractJobService() {
+class JobProcessService : AbstractJobService() {
 
     companion object {
-        protected val logger: Logger = loggerFor(RRuleProcessService::class.java)
+        protected val logger: Logger = loggerFor(JobProcessService::class.java)
     }
 
 
@@ -26,7 +24,7 @@ class RRuleProcessService : AbstractJobService() {
     override fun createJob(descriptor: JobDescriptor): JobDescriptor {
         val jobDetail = descriptor.buildJobDetail()
         val triggersForJob = descriptor.buildTriggers()
-        RRuleProcessService.logger.info("About to save job with key - ${jobDetail.key}")
+        JobProcessService.logger.info("About to save job with key - ${jobDetail.key}")
         try {
             scheduler.scheduleJob(jobDetail, triggersForJob, false)
             logger.info("Job with key - ${jobDetail.key} saved successfully")
@@ -59,16 +57,8 @@ class RRuleProcessService : AbstractJobService() {
 
     }
 
-    @StreamListener("rruleInput")
-    fun processRRule(recurrenceRule: RecurrenceMessage) {
-        logger.info("found recurrence rule $recurrenceRule")
-        rruleHelper(recurrenceRule)
-
-    }
-
-    fun rruleHelper(recurrenceRule: RecurrenceMessage) {
 
 
-    }
+
 
 }

@@ -1,14 +1,11 @@
 package com.und.config
 
-import com.und.scheduler.MessageJob
-import org.quartz.*
-import org.quartz.JobBuilder.newJob
 import org.quartz.Scheduler
-import org.quartz.SimpleScheduleBuilder.simpleSchedule
-import org.quartz.TriggerBuilder.newTrigger
+import org.quartz.SchedulerException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
+import org.springframework.cloud.stream.annotation.EnableBinding
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -79,26 +76,5 @@ class UndScheduler {
     }
 
 
-/*
-    @Bean
-    fun jobDetail(): JobDetail {
 
-        return newJob().ofType(MessageJob::class.java).storeDurably()
-                .withIdentity(JobKey.jobKey("message_Job_Detail"))
-                .withDescription("Invoke Job service...").build()
-    }
-
-    @Bean
-    fun trigger(job: JobDetail): Trigger {
-
-        val frequencyInSec = 10
-        logger.info("Configuring trigger to fire every {} seconds", frequencyInSec)
-
-        return newTrigger()
-                .forJob(job)
-                .withIdentity(TriggerKey.triggerKey("Qrtz_Trigger"))
-                .withDescription("Sample trigger")
-                .withSchedule(simpleSchedule().withIntervalInSeconds(frequencyInSec).repeatForever())
-                .build()
-    }*/
 }

@@ -1,12 +1,11 @@
 package com.und.model
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.und.util.JobUtil
-import com.und.util.LocalDateTimeSerializer
 import org.quartz.CronExpression.isValidExpression
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.JobDataMap
 import org.quartz.SimpleScheduleBuilder.simpleSchedule
+import org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule
 import org.quartz.Trigger
 import org.quartz.TriggerBuilder.newTrigger
 import org.quartz.TriggerUtils
@@ -30,6 +29,7 @@ class TriggerDescriptor {
     var countTimes: Int = 0
     //@JsonSerialize(using = LocalDateTimeSerializer::class)
     var fireTime: LocalDateTime? = null
+    var fireTimes : List<LocalDateTime>? = null
     var cron: String? = null
 
 
@@ -58,7 +58,7 @@ class TriggerDescriptor {
             !isEmpty(cron) && isValidExpression(cron) -> {
                 val jobDataMap = JobDataMap()
                 jobDataMap["cron"] = cron
-
+                //FIXME handle timezone to UTC, as of now it is set to systemDefault
                 newTrigger()
                         .withIdentity(name, group)
                         .withSchedule(cronSchedule(cron)
@@ -88,6 +88,11 @@ class TriggerDescriptor {
 
             }
             else -> {
+                newTrigger()
+                        .withIdentity(name, group)
+                        .withSchedule(calendarIntervalSchedule()
+
+                        )
                 throw IllegalStateException("Specify either one of 'cron' or 'fireTime'")
             }
 

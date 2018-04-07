@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.20'
-        springBootVersion = '2.0.0.RC1'
+        kotlinVersion = '1.2.31'
+        springBootVersion = '2.0.0.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -13,7 +13,6 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
-        //classpath 'org.springframework:springloaded:1.2.8.RELEASE'
         classpath 'org.springframework:springloaded:1.2.8.RELEASE'
     }
 }
@@ -76,7 +75,7 @@ tasks.withType(FindBugs) {
 }
 
 ext {
-    springCloudVersion = 'Finchley.M6'
+    springCloudVersion = 'Finchley.M9'
 }
 
 jar {
@@ -93,25 +92,23 @@ dependencies {
     compile('org.springframework.cloud:spring-cloud-config-client')
     compile('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
     compile('org.springframework.cloud:spring-cloud-starter-openfeign')
+    compile('org.springframework.cloud:spring-cloud-starter-sleuth')
+    compile('org.springframework.cloud:spring-cloud-starter-stream-kafka')
+    compile('org.springframework.cloud:spring-cloud-stream-binder-kafka')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('org.flywaydb:flyway-core:5.0.7')
-    //compile("org.springframework.boot:spring-boot-starter-mobile:2.0.0.M5")
     compile('org.springframework.boot:spring-boot-starter-mail')
     compile('org.springframework.boot:spring-boot-starter-quartz')
-    //compile('org.springframework.boot:spring-boot-starter-security')
-    //compile('org.springframework.boot:spring-boot-starter-mail')
-    //compile('org.springframework.boot:spring-boot-starter-web')
+
     compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
-    //compile group: 'org.springframework', name: 'spring-context', version: '5.0.3.RELEASE'
-    //compile group: 'org.springframework', name: 'spring-context-support', version: '5.0.3.RELEASE'
-    //compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
+
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.4.1'
-    compile('org.springframework.cloud:spring-cloud-starter-stream-kafka')
     compile group: 'org.scala-saddle', name: 'google-rfc-2445', version: '20110304'
+    compile group: 'org.codehaus.janino', name: 'janino', version: '3.0.8'
     runtime('org.springframework.boot:spring-boot-devtools')
     runtime('org.postgresql:postgresql')
     testCompile('org.springframework.boot:spring-boot-starter-test') {

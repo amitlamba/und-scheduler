@@ -23,6 +23,11 @@ class JobDescriptor {
     @JsonProperty("triggers")
     var triggerDescriptors: List<TriggerDescriptor> = arrayListOf()
 
+    var action:Action = Action.NOTHING
+
+    enum class Action {
+        PAUSE,CREATE,RESUME,DELETE, NOTHING
+    }
 
     /**
      * Convenience method for building Triggers of Job

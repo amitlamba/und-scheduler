@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.cloud.context.config.annotation.RefreshScope
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient
-import org.springframework.cloud.netflix.feign.EnableFeignClients
+//import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.scheduling.annotation.EnableScheduling
 
@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @ComponentScan(basePackages = ["com.und"])
 @RefreshScope
 @EnableEurekaClient
-@EnableFeignClients
+//@EnableFeignClients
 @EnableScheduling
 class UndSchedulerApplication
 
