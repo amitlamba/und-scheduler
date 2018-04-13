@@ -28,8 +28,7 @@ apply plugin: 'findbugs'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
-group = 'com.und'
-version = '0.0.1-SNAPSHOT'
+
 sourceCompatibility = 1.8
 
 compileKotlin {
@@ -75,7 +74,7 @@ tasks.withType(FindBugs) {
 }
 
 ext {
-    springCloudVersion = 'Finchley.M9'
+    springCloudVersion = 'Finchley.M8'
 }
 
 jar {
@@ -92,13 +91,14 @@ dependencies {
     compile('org.springframework.cloud:spring-cloud-config-client')
     compile('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
     compile('org.springframework.cloud:spring-cloud-starter-openfeign')
+    compile('org.springframework.boot:spring-boot-starter-data-rest')
     compile('org.springframework.cloud:spring-cloud-starter-sleuth')
     compile('org.springframework.cloud:spring-cloud-starter-stream-kafka')
     compile('org.springframework.cloud:spring-cloud-stream-binder-kafka')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+    //compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('org.flywaydb:flyway-core:5.0.7')
-    compile('org.springframework.boot:spring-boot-starter-mail')
+    //compile('org.springframework.boot:spring-boot-starter-mail')
     compile('org.springframework.boot:spring-boot-starter-quartz')
 
     compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
