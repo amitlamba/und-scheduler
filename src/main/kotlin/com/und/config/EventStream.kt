@@ -7,10 +7,13 @@ import org.springframework.messaging.SubscribableChannel
 
 interface EventStream {
 
-    @Input("scheduleJob")
-    fun scheduleJobRecieve(): SubscribableChannel
+    @Input("scheduleJobReceive")
+    fun scheduleJobReceive(): SubscribableChannel
 
-    @Output("campaignTrigger")
+    @Output("campaignTriggerSend")
     fun campaignTriggerEvent(): MessageChannel
+
+    @Input("campaignTriggerReceive")
+    fun campaignTriggerReceive(): SubscribableChannel
 
 }

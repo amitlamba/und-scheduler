@@ -26,7 +26,9 @@ class MessageJobService {
         logger.info("The job has begun...")
         try {
             //eventStream.campaignTriggerEvent()
-            eventStream?.let { it.campaignTriggerEvent().send(MessageBuilder.withPayload(campaignId).build()) }
+            eventStream?.let {stream ->
+                stream.campaignTriggerEvent().send(MessageBuilder.withPayload(campaignId).build())
+            }
 
         } catch (e: Exception) {
             logger.error("Error while executing job", e)
@@ -37,12 +39,13 @@ class MessageJobService {
     }
 
 
-    @StreamListener("campaignTrigger")
+    @StreamListener("campaignTriggerReceive")
     fun trigger(campaignId: String) {
-        logger.error("please trigger this campaign $campaignId logic ")
+        println(campaignId)
+        logger.debug("please trigger this campaign $campaignId logic ")
     }
 
-    @StreamListener("scheduleJob")
+    @StreamListener("scheduleJobReceive")
     fun save(jobDescriptor: JobDescriptor) {
         val action = jobDescriptor.action
         //FIXME handle errors and send back akcs on separate channels
