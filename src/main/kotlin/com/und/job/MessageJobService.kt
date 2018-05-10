@@ -39,11 +39,7 @@ class MessageJobService {
     }
 
 
-    @StreamListener("campaignTriggerReceive")
-    fun trigger(campaignId: String) {
-        println(campaignId)
-        logger.debug("please trigger this campaign $campaignId logic ")
-    }
+
 
     @StreamListener("scheduleJobReceive")
     fun save(jobDescriptor: JobDescriptor) {

@@ -13,7 +13,6 @@ interface EventStream {
     @Output("campaignTriggerSend")
     fun campaignTriggerEvent(): MessageChannel
 
-    @Input("campaignTriggerReceive")
-    fun campaignTriggerReceive(): SubscribableChannel
+
 
 }
