@@ -22,8 +22,8 @@ class MessageJob : Job {
         val campaignName = context.jobDetail.jobDataMap["campaignName"] as String
 
         logger.info("Job ** ${context.jobDetail.key.name} ** fired @ ${context.fireTime} for client $clientId with campaign $campaignName : $campaignId")
-
-        jobService.executeJob(campaignId)
+        Pair(campaignId, clientId)
+        jobService.executeJob(Pair(campaignId, clientId))
 
         logger.info("Next job scheduled @ ${context.nextFireTime}")
     }

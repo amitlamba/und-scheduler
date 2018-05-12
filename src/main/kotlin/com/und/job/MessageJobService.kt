@@ -21,13 +21,13 @@ class MessageJobService {
     @Autowired
     lateinit var eventStream: EventStream
 
-    fun executeJob(campaignId: String): String {
+    fun executeJob(pair:Pair<String, String>): String {
 
         logger.info("The job has begun...")
         try {
             //eventStream.campaignTriggerEvent()
             eventStream?.let {stream ->
-                stream.campaignTriggerEvent().send(MessageBuilder.withPayload(campaignId).build())
+                stream.campaignTriggerEvent().send(MessageBuilder.withPayload(pair).build())
             }
 
         } catch (e: Exception) {
@@ -35,7 +35,7 @@ class MessageJobService {
         } finally {
             logger.info("job has finished...")
         }
-        return campaignId
+        return pair.first
     }
 
 
