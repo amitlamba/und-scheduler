@@ -1,5 +1,6 @@
 package com.und.service
 
+import com.und.model.FixedDateCalendar
 import com.und.model.JobDescriptor
 import com.und.util.loggerFor
 import org.quartz.JobKey
@@ -7,6 +8,7 @@ import org.quartz.SchedulerException
 import org.slf4j.Logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 @Transactional
@@ -26,6 +28,15 @@ class JobProcessService : AbstractJobService() {
         val triggersForJob = descriptor.buildTriggers()
         JobProcessService.logger.info("About to save job with key - ${jobDetail.key}")
         try {
+            val fireTimes = descriptor.triggerDescriptors.map { it.fireTimes }
+            if(fireTimes.isNotEmpty()) {
+                val x = fireTimes.first()?.isNotEmpty()
+                if(x!=null && x) {
+                    val dates = fireTimes.first()?: mutableListOf()
+                    val cal = FixedDateCalendar(dates)
+                    scheduler.addCalendar("${descriptor.campaignId}_${descriptor.campaignName}", cal, false, true)
+                }
+            }
             scheduler.scheduleJob(jobDetail, triggersForJob, false)
             logger.info("Job with key - ${jobDetail.key} saved successfully")
         } catch (e: SchedulerException) {

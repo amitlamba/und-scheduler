@@ -7,6 +7,7 @@ import org.quartz.JobDataMap
 import org.quartz.SimpleScheduleBuilder.simpleSchedule
 import org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule
 import org.quartz.Trigger
+import org.quartz.TriggerBuilder
 import org.quartz.TriggerBuilder.newTrigger
 import org.quartz.TriggerUtils
 import org.quartz.impl.calendar.BaseCalendar
@@ -29,7 +30,7 @@ class TriggerDescriptor {
     var countTimes: Int = 0
     //@JsonSerialize(using = LocalDateTimeSerializer::class)
     var fireTime: LocalDateTime? = null
-    var fireTimes : List<LocalDateTime>? = null
+    var fireTimes : List<LocalDate>? = null
     var cron: String? = null
 
 
@@ -52,9 +53,9 @@ class TriggerDescriptor {
         group = buildGroupName(jobDescriptor)
 
         val triggerBuilder = when {
-            !isEmpty(cron) && !isValidExpression(cron) -> {
-                throw IllegalArgumentException("Provided expression '$cron' is not a valid cron expression")
-            }
+
+
+            !isEmpty(cron) && !isValidExpression(cron) -> throw IllegalArgumentException("Provided expression '$cron' is not a valid cron expression")
             !isEmpty(cron) && isValidExpression(cron) -> {
                 val jobDataMap = JobDataMap()
                 jobDataMap["cron"] = cron
@@ -87,12 +88,23 @@ class TriggerDescriptor {
                         .usingJobData("countTimes", countTimes.toString())
 
             }
-            else -> {
-                newTrigger()
-                        .withIdentity(name, group)
-                        .withSchedule(calendarIntervalSchedule()
+           !isEmpty(fireTimes) -> {
 
-                        )
+
+               newTrigger()
+                       .withIdentity(name, group)
+                       .withSchedule(simpleSchedule()
+                               .withMisfireHandlingInstructionNextWithExistingCount()
+                               .withIntervalInSeconds(5)
+                               //.withIntervalInHours(24)
+                               .withRepeatCount((fireTimes?.size?:0) -1)
+                                )
+                       .modifiedByCalendar("${jobDescriptor.campaignId}_${jobDescriptor.campaignName}")
+
+
+            }
+            else -> {
+
                 throw IllegalStateException("Specify either one of 'cron' or 'fireTime'")
             }
 
