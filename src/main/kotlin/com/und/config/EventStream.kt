@@ -10,6 +10,9 @@ interface EventStream {
     @Input("scheduleJobReceive")
     fun scheduleJobReceive(): SubscribableChannel
 
+    @Output("scheduleJobAckSend")
+    fun scheduleJobAck(): MessageChannel
+
     @Output("campaignTriggerSend")
     fun campaignTriggerEvent(): MessageChannel
 

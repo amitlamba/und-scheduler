@@ -5,9 +5,7 @@ import org.quartz.CronExpression.isValidExpression
 import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.JobDataMap
 import org.quartz.SimpleScheduleBuilder.simpleSchedule
-import org.quartz.CalendarIntervalScheduleBuilder.calendarIntervalSchedule
 import org.quartz.Trigger
-import org.quartz.TriggerBuilder
 import org.quartz.TriggerBuilder.newTrigger
 import org.quartz.TriggerUtils
 import org.quartz.impl.calendar.BaseCalendar
@@ -99,7 +97,7 @@ class TriggerDescriptor {
                                //.withIntervalInHours(24)
                                .withRepeatCount((fireTimes?.size?:0) -1)
                                 )
-                       .modifiedByCalendar("${jobDescriptor.campaignId}_${jobDescriptor.campaignName}")
+                       .modifiedByCalendar(jobDescriptor.calendarName())
 
 
             }

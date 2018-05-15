@@ -1,8 +1,11 @@
 package com.und.service
 
 
+import com.und.model.JobActionStatus
 import com.und.model.JobDescriptor
+import com.und.util.JobUtil
 import com.und.util.loggerFor
+import org.quartz.JobKey
 import org.quartz.JobKey.jobKey
 import org.quartz.Scheduler
 import org.quartz.SchedulerException
@@ -29,7 +32,7 @@ abstract class AbstractJobService : JobService {
     /**
      * {@inheritDoc}
      */
-    abstract override fun createJob(descriptor: JobDescriptor): JobDescriptor
+    abstract override fun createJob(descriptor: JobDescriptor): JobActionStatus
 
     /**
      * {@inheritDoc}
@@ -53,44 +56,49 @@ abstract class AbstractJobService : JobService {
     /**
      * {@inheritDoc}
      */
-    abstract override fun updateJob(group: String, name: String, descriptor: JobDescriptor)
-
-    /**
-     * {@inheritDoc}
-     */
-    override fun deleteJob(group: String, name: String) {
-        try {
-            scheduler.deleteJob(jobKey(name, group))
-            logger.info("Deleted job with key - $group.$name")
-        } catch (e: SchedulerException) {
-            logger.error("Could not delete job with key - $group.$name due to error - ${e.localizedMessage}")
-        }
+    @Transactional(readOnly = true)
+    override fun findJob(jobDescriptor: JobDescriptor): Optional<JobDescriptor> {
+        val name = JobUtil.getJobName(jobDescriptor)
+        val group = JobUtil.getGroupName(jobDescriptor)
+        return findJob(group, name)
 
     }
 
     /**
      * {@inheritDoc}
      */
-    override fun pauseJob(group: String, name: String) {
-        try {
-            scheduler.pauseJob(jobKey(name, group))
-            logger.info("Paused job with key - {}.{}", group, name)
-        } catch (e: SchedulerException) {
-            logger.error("Could not pause job with key - $group.$name due to error - ${e.localizedMessage}")
-        }
-
-    }
+    abstract override fun updateJob(group: String, name: String, descriptor: JobDescriptor):JobActionStatus
 
     /**
      * {@inheritDoc}
      */
-    override fun resumeJob(group: String, name: String) {
+    override fun deleteJob(group: String, name: String):JobActionStatus = takeAction(group, name, "delete", { jobKey -> scheduler.deleteJob(jobKey) })
+
+    /**
+     * {@inheritDoc}
+     */
+    override fun pauseJob(group: String, name: String):JobActionStatus = takeAction(group, name, "pause", scheduler::pauseJob)
+
+    /**
+     * {@inheritDoc}
+     */
+    override fun resumeJob(group: String, name: String):JobActionStatus = takeAction(group, name, "resume", scheduler::resumeJob)
+
+
+    fun takeAction(group: String, name: String, actionName: String, action: (JobKey) -> Unit): JobActionStatus {
+        val status = JobActionStatus()
         try {
-            scheduler.resumeJob(jobKey(name, group))
-            logger.info("Resumed job with key - {}.{}", group, name)
+            action(jobKey(name, group))
+            status.status = JobActionStatus.Status.OK
+            logger.info("$actionName  for job with key - $group.$name")
         } catch (e: SchedulerException) {
-            logger.error("Could not resume job with key - $group.$name due to error - ${e.localizedMessage}")
+            logger.error("Could not execute $actionName job with key - $group.$name due to error - ${e.localizedMessage}")
+            status.status = JobActionStatus.Status.ERROR
+
         }
+        return status
 
     }
+
+
 }

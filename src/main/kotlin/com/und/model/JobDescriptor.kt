@@ -57,6 +57,8 @@ class JobDescriptor {
                 .build()
     }
 
+    fun calendarName() = "${this.campaignId}_${this.campaignName}"
+
     companion object {
         /**
          * Convenience method that builds a descriptor from JobDetail and Trigger(s)

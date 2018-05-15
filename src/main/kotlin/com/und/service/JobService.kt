@@ -1,5 +1,6 @@
 package com.und.service
 
+import com.und.model.JobActionStatus
 import com.und.model.JobDescriptor
 import java.util.*
 
@@ -21,10 +22,10 @@ interface JobService {
      * @param descriptor
      * the payload containing the Job and its associated Trigger(s).
      * The name and group uniquely identifies the job.
-     * @return JobDescriptor this contains the JobDetail and Triggers of the
+     * @return JobActionStatus this contains the status of the job creation request
      * newly created job
      */
-    fun createJob(descriptor: JobDescriptor): JobDescriptor
+    fun createJob(descriptor: JobDescriptor): JobActionStatus
 
     /**
      * Searches for a Job identified by the given `JobKey`
@@ -38,6 +39,15 @@ interface JobService {
     fun findJob(group: String, name: String): Optional<JobDescriptor>
 
     /**
+     * Searches for a Job identified by the given `JobKey`
+     *
+     * @param jobDescriptor
+     * @return the jobDescriptor if found or an empty Optional
+     */
+    fun findJob(jobDescriptor: JobDescriptor): Optional<JobDescriptor>
+
+
+    /**
      * Updates the Job that matches the given `JobKey` with new
      * information
      *
@@ -48,7 +58,7 @@ interface JobService {
      * @param descriptor
      * the payload containing the updates to the JobDetail
      */
-    fun updateJob(group: String, name: String, descriptor: JobDescriptor)
+    fun updateJob(group: String, name: String, descriptor: JobDescriptor):JobActionStatus
 
     /**
      * Deletes the Job identified by the given `JobKey`
@@ -58,7 +68,7 @@ interface JobService {
      * @param name
      * the name of the dynamically scheduled job
      */
-    fun deleteJob(group: String, name: String)
+    fun deleteJob(group: String, name: String): JobActionStatus
 
     /**
      * Pauses the Job identified by the given `JobKey`
@@ -68,7 +78,7 @@ interface JobService {
      * @param name
      * the name of the dynamically scheduled job
      */
-    fun pauseJob(group: String, name: String)
+    fun pauseJob(group: String, name: String):JobActionStatus
 
     /**
      * Resumes the Job identified by the given `JobKey`
@@ -78,5 +88,5 @@ interface JobService {
      * @param name
      * the name of the dynamically scheduled job
      */
-    fun resumeJob(group: String, name: String)
+    fun resumeJob(group: String, name: String):JobActionStatus
 }

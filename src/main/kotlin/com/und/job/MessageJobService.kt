@@ -1,12 +1,15 @@
 package com.und.job
 
 import com.und.config.EventStream
+import com.und.model.JobAction
+import com.und.model.JobActionStatus
 import com.und.model.JobDescriptor
 import com.und.service.JobService
 import com.und.util.JobUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.stream.annotation.StreamListener
+import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
 
@@ -21,12 +24,13 @@ class MessageJobService {
     @Autowired
     lateinit var eventStream: EventStream
 
-    fun executeJob(pair:Pair<String, String>): String {
+    fun executeJob(pair: Pair<String, String>): String {
 
         logger.info("The job has begun...")
         try {
             //eventStream.campaignTriggerEvent()
-            eventStream?.let {stream ->
+            //below null pointer has been added because it doesnt get initiated before execuite job gets called, may be constructor should have been used here
+            eventStream?.let { stream ->
                 stream.campaignTriggerEvent().send(MessageBuilder.withPayload(pair).build())
             }
 
@@ -39,37 +43,76 @@ class MessageJobService {
     }
 
 
-
-
     @StreamListener("scheduleJobReceive")
-    fun save(jobDescriptor: JobDescriptor) {
+    @SendTo("scheduleJobAckSend")
+    fun save(jobDescriptor: JobDescriptor): JobActionStatus {
         val action = jobDescriptor.action
-        //FIXME handle errors and send back akcs on separate channels
-        when (action) {
+        return when (action) {
             JobDescriptor.Action.CREATE -> {
-                jobService.createJob(jobDescriptor)
+                performAction(jobDescriptor, jobService::createJob)
+
             }
             JobDescriptor.Action.PAUSE -> {
-                val group: String = JobUtil.getGroupName(jobDescriptor.clientId)
-                val name: String = JobUtil.getJobName(jobDescriptor.campaignId, jobDescriptor.campaignName)
-                jobService.pauseJob(group, name)
+                performAction(jobDescriptor, jobService::pauseJob)
             }
             JobDescriptor.Action.RESUME -> {
-                val group: String = JobUtil.getGroupName(jobDescriptor.clientId)
-                val name: String = JobUtil.getJobName(jobDescriptor.campaignId, jobDescriptor.campaignName)
-                jobService.resumeJob(group, name)
+                performAction(jobDescriptor, jobService::resumeJob)
             }
             JobDescriptor.Action.DELETE -> {
-                val group: String = JobUtil.getGroupName(jobDescriptor.clientId)
-                val name: String = JobUtil.getJobName(jobDescriptor.campaignId, jobDescriptor.campaignName)
-                jobService.deleteJob(group, name)
+                performAction(jobDescriptor, jobService::deleteJob)
             }
             JobDescriptor.Action.NOTHING -> {
+                val status = jobActionStatus(jobDescriptor, action)
+                status.status = JobActionStatus.Status.NOTFOUND
+                status.message = "No action with this name can be performed"
+                status
             }
         }
 
 
-        jobService.createJob(jobDescriptor)
+    }
 
+    private fun performAction(jobDescriptor: JobDescriptor, perform: (JobDescriptor) -> JobActionStatus): JobActionStatus {
+        val job = jobService.findJob(jobDescriptor)
+        val status = jobActionStatus(jobDescriptor, jobDescriptor.action)
+        if (job.isPresent) {
+            status.status = JobActionStatus.Status.DUPLICATE
+            status.message = "Cant Perform ${jobDescriptor.action.name}  on schedule as it already exists."
+        } else {
+            val actionStatus = perform(jobDescriptor)
+            status.status = actionStatus.status
+            status.message = actionStatus.message
+
+        }
+        return status
+    }
+
+
+    private fun performAction(jobDescriptor: JobDescriptor, perform: (String, String) -> JobActionStatus): JobActionStatus {
+        val job = jobService.findJob(jobDescriptor)
+        val status = jobActionStatus(jobDescriptor, jobDescriptor.action)
+        if (job.isPresent) {
+            val group: String = JobUtil.getGroupName(jobDescriptor.clientId)
+            val name: String = JobUtil.getJobName(jobDescriptor.campaignId, jobDescriptor.campaignName)
+            val actionStatus = perform(group, name)
+            status.status = actionStatus.status
+            status.message = actionStatus.message
+        } else {
+            status.status = JobActionStatus.Status.NOTFOUND
+            status.message = "Cant Perform ${jobDescriptor.action.name}  on schedule as it doesn't exists."
+        }
+        return status
+    }
+
+    private fun jobActionStatus(jobDescriptor: JobDescriptor, action: JobDescriptor.Action): JobActionStatus {
+        val jobAction = JobAction(
+                campaignId = jobDescriptor.campaignId,
+                clientId = jobDescriptor.clientId,
+                campaignName = jobDescriptor.campaignName,
+                action = action
+        )
+        val status = JobActionStatus()
+        status.jobAction = jobAction
+        return status
     }
 }
