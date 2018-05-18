@@ -79,9 +79,15 @@ class MessageJobService {
             status.status = JobActionStatus.Status.DUPLICATE
             status.message = "Cant Perform ${jobDescriptor.action.name}  on schedule as it already exists."
         } else {
-            val actionStatus = perform(jobDescriptor)
-            status.status = actionStatus.status
-            status.message = actionStatus.message
+            val actionStatus =try {
+                  val actionStatus = perform(jobDescriptor)
+                status.status = actionStatus.status
+                status.message = actionStatus.message
+                status
+            } catch (e: Exception) {
+                status.status = JobActionStatus.Status.ERROR
+                status.message = "Cant Perform ${jobDescriptor.action.name}  on schedule as ${e.localizedMessage}."
+            }
 
         }
         return status
