@@ -50,7 +50,6 @@ class MessageJobService {
         return when (action) {
             JobDescriptor.Action.CREATE -> {
                 performAction(jobDescriptor, jobService::createJob)
-
             }
             JobDescriptor.Action.PAUSE -> {
                 performAction(jobDescriptor, jobService::pauseJob)
@@ -59,6 +58,10 @@ class MessageJobService {
                 performAction(jobDescriptor, jobService::resumeJob)
             }
             JobDescriptor.Action.DELETE -> {
+                performAction(jobDescriptor, jobService::deleteJob)
+            }
+
+            JobDescriptor.Action.STOP -> {
                 performAction(jobDescriptor, jobService::deleteJob)
             }
             JobDescriptor.Action.NOTHING -> {

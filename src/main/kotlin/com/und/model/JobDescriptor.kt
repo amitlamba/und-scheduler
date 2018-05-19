@@ -21,12 +21,12 @@ class JobDescriptor {
     lateinit var campaignName: String
 
     @JsonProperty("triggers")
-    var triggerDescriptors: List<TriggerDescriptor> = arrayListOf()
+    var triggerDescriptors: List<TriggerDescriptor> = listOf()
 
     var action:Action = Action.NOTHING
 
     enum class Action {
-        PAUSE,CREATE,RESUME,DELETE, NOTHING
+        PAUSE,CREATE,RESUME,DELETE,STOP,NOTHING,
     }
 
     /**

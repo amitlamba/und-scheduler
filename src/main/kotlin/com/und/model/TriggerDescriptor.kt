@@ -28,7 +28,7 @@ class TriggerDescriptor {
     var countTimes: Int = 0
     //@JsonSerialize(using = LocalDateTimeSerializer::class)
     var fireTime: LocalDateTime? = null
-    var fireTimes : List<LocalDate>? = null
+    var fireTimes: List<LocalDate>? = null
     var cron: String? = null
 
 
@@ -72,9 +72,9 @@ class TriggerDescriptor {
             !isEmpty(fireTime) -> {
                 val jobDataMap = JobDataMap()
                 jobDataMap["fireTime"] = fireTime
-                if(startDate!=null) jobDataMap["startDate"] = startDate
-                if(endDate!=null) jobDataMap["endDate"] = endDate
-                if(countTimes > 0) jobDataMap["countTimes"] = countTimes.toString()
+                if (startDate != null) jobDataMap["startDate"] = startDate
+                if (endDate != null) jobDataMap["endDate"] = endDate
+                if (countTimes > 0) jobDataMap["countTimes"] = countTimes.toString()
                 newTrigger()
                         .withIdentity(name, group)
                         .withSchedule(simpleSchedule()
@@ -86,18 +86,18 @@ class TriggerDescriptor {
                         .usingJobData("countTimes", countTimes.toString())
 
             }
-           !isEmpty(fireTimes) -> {
+            !isEmpty(fireTimes) -> {
 
 
-               newTrigger()
-                       .withIdentity(name, group)
-                       .withSchedule(simpleSchedule()
-                               .withMisfireHandlingInstructionNextWithExistingCount()
-                               .withIntervalInSeconds(5)
-                               //.withIntervalInHours(24)
-                               .withRepeatCount((fireTimes?.size?:0) -1)
-                                )
-                       .modifiedByCalendar(jobDescriptor.calendarName())
+                newTrigger()
+                        .withIdentity(name, group)
+                        .withSchedule(simpleSchedule()
+                                .withMisfireHandlingInstructionNextWithExistingCount()
+                                .withIntervalInSeconds(5)
+                                //.withIntervalInHours(24)
+                                .withRepeatCount((fireTimes?.size ?: 0) - 1)
+                        )
+                        .modifiedByCalendar(jobDescriptor.calendarName())
 
 
             }
@@ -138,18 +138,24 @@ class TriggerDescriptor {
                 name = trigger.key.name
                 group = trigger.key.group
                 val fireTimeString = trigger.jobDataMap["fireTime"] as String?
-                if(!fireTimeString.isNullOrBlank()) fireTime = LocalDateTime.ofEpochSecond(fireTimeString?.toLong()!!,0, ZoneOffset.UTC)
+                if (!fireTimeString.isNullOrBlank()) {
+                    fireTime = fireTimeString?.let { LocalDateTime.ofEpochSecond(fireTimeString.toLong(), 0, ZoneOffset.UTC) }
+                }
                 cron = trigger.jobDataMap["cron"] as String?
                 val startDateString = trigger.jobDataMap["startDate"] as String?
-                if(startDateString != null) startDate = LocalDate.ofEpochDay(startDateString.toLong())
+                if (startDateString != null) startDate = LocalDate.ofEpochDay(startDateString.toLong())
                 val endDateString = trigger.jobDataMap["endDate"] as String?
-                if(endDateString != null) endDate = LocalDate.ofEpochDay(endDateString.toLong())
+                if (!endDateString.isNullOrBlank()) {
+                    endDate = endDateString?.let { LocalDate.ofEpochDay(endDateString.toLong()) }
+                }
                 val count = (trigger.jobDataMap["countTimes"] as String?)
-                if(count!=null) countTimes = count.toInt()
+                if (!count.isNullOrBlank()) {
+                    countTimes = count?.let { count.toInt() } ?: 0
+                }
+                return triggerDescriptor
             }
-            return triggerDescriptor
-        }
 
+        }
     }
 
 }
