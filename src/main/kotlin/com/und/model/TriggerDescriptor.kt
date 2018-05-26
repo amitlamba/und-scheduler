@@ -143,7 +143,9 @@ class TriggerDescriptor {
                 }
                 cron = trigger.jobDataMap["cron"] as String?
                 val startDateString = trigger.jobDataMap["startDate"] as String?
-                if (startDateString != null) startDate = LocalDate.ofEpochDay(startDateString.toLong())
+                if (!startDateString.isNullOrBlank())  {
+                    startDate = startDateString?.let{LocalDate.ofEpochDay(startDateString.toLong())}
+                }
                 val endDateString = trigger.jobDataMap["endDate"] as String?
                 if (!endDateString.isNullOrBlank()) {
                     endDate = endDateString?.let { LocalDate.ofEpochDay(endDateString.toLong()) }
